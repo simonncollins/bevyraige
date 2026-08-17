@@ -1,10 +1,10 @@
 [package]
-name = "beveraige"
+name = "bevyraige"
 version = "0.1.0"
 edition = "2021"
 description = "Portable Bevy tooling: headless agent-driven play, frame capture, boot-into-a-state, run diffing, and a web build that works."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/simonncollins/beveraige"
+repository = "https://github.com/simonncollins/bevyraige"
 keywords = ["bevy", "gamedev", "testing", "wasm"]
 categories = ["game-development", "development-tools"]
 
