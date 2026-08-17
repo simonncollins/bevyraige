@@ -1,4 +1,4 @@
-# beveraige
+# bevyraige
 
 Bevy tooling that is not about any particular game: play it with no window and
 drive it over the wire, capture frames, boot past the menus, diff two runs — and
@@ -10,7 +10,7 @@ fixing something.
 
 ```toml
 [dependencies]
-beveraige = { git = "https://github.com/simonncollins/beveraige" }
+bevyraige = { git = "https://github.com/simonncollins/bevyraige" }
 ```
 
 ```rust
