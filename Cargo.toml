@@ -1,0 +1,40 @@
+[package]
+name = "beveraige"
+version = "0.1.0"
+edition = "2021"
+description = "Portable Bevy tooling: headless agent-driven play, frame capture, boot-into-a-state, run diffing, and a web build that works."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/simonncollins/beveraige"
+keywords = ["bevy", "gamedev", "testing", "wasm"]
+categories = ["game-development", "development-tools"]
+
+[dependencies]
+# **The `ui` bundle, not the defaults.** This is the smallest set that compiles:
+# the agent hit-tests UI, retargets cameras to images, and reads the window, so
+# it needs `bevy_ui`, `bevy_render`, `bevy_asset` and `bevy_winit` — which is
+# what `ui` resolves to (`ui_api` + `ui_bevy_render` + `default_app` +
+# `default_platform`).
+#
+# No `2d` and no `3d`: a host game brings whichever it is, and Bevy's features
+# are additive across the dependency graph, so asking for less here cannot take
+# anything away from the game that depends on this.
+bevy = { version = "0.18", default-features = false, features = ["ui"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BRP is the agent transport, and its HTTP *server* needs a socket to listen on
+# — which a browser tab does not have. Everything else in this crate compiles
+# for the web; see `platform`.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+bevy = { version = "0.18", default-features = false, features = ["ui", "bevy_remote"] }
+
+# `Date.now()`, the only clock a wasm32-unknown-unknown build has. `std::time`
+# panics there — see `platform`.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"
+
+[dev-dependencies]
+# The tooling's own tests stand up real `App`s and drive states, which a host
+# game would bring.
+bevy = { version = "0.18", default-features = false, features = ["ui", "bevy_state"] }
+tempfile = "3"

@@ -1,0 +1,103 @@
+# TEMPLATE. Replace `CHANGEME` with your crate name.
+#
+# Two jobs, deliberately. The `web` job is the one that stops a web build
+# rotting: a target nothing ever builds drifts silently, and the failure is
+# discovered weeks later as a wall of errors nobody can date.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Bevy needs these to link on Linux. Without them the failure is a pile of
+      # `-lasound` style linker errors, which reads like a code problem.
+      - name: Install Bevy system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            g++ pkg-config libx11-dev libasound2-dev libudev-dev \
+            libxkbcommon-x11-0 libwayland-dev
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+      - name: Format check
+        run: cargo fmt --check
+
+  # A separate job, because a wasm build shares no artifacts with a native one
+  # and would only fight the other job's cache.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: wasm
+
+      - name: Clippy (wasm32)
+        run: cargo clippy --lib --bin CHANGEME --target wasm32-unknown-unknown -- -D warnings
+
+  # Publishing, if you have somewhere to publish to. `needs:` is the point:
+  # GitHub cannot express it across workflows, so a publish job in its own file
+  # fires in *parallel* with CI and can ship a commit that broke the tests.
+  publish:
+    needs: [check, web]
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: wasm
+
+      - name: Install the wasm toolchain
+        run: |
+          set -euo pipefail
+          # **Pinned, both of them.** See docs/web-deployment.md — taking
+          # whatever the package manager has is how this fails twice.
+          VERSION="$(awk '/^name = "wasm-bindgen"$/ { f = 1; next }
+                          f && /^version = / { gsub(/[version ="]/, ""); print; exit }' Cargo.lock)"
+          cargo install -f wasm-bindgen-cli --version "$VERSION"
+
+          BINARYEN=version_132
+          curl -sSfL -o /tmp/binaryen.tar.gz \
+            "https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN}/binaryen-${BINARYEN}-x86_64-linux.tar.gz"
+          tar -xzf /tmp/binaryen.tar.gz -C /tmp
+          echo "/tmp/binaryen-${BINARYEN}/bin" >> "$GITHUB_PATH"
+
+      - name: Build the web bundle
+        run: ./build/web/package.sh
+
+      # ... then upload `web-build/` wherever it goes.

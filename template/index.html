@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CHANGEME</title>
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #0d0b14;
+        overflow: hidden;
+        font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #f7ce7e;
+      }
+
+      /* The canvas fills this, and Bevy's `fit_canvas_to_parent` measures it.
+         It must NOT be sized by its children — a parent that grows to fit its
+         canvas and a canvas that grows to fit its parent is a feedback loop
+         that inflates the canvas every frame. `position: absolute; inset: 0`
+         takes its size from the page, so there is no loop. */
+      #frame {
+        position: absolute;
+        inset: 0;
+      }
+
+      #game-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+
+      #status {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        gap: 16px;
+        grid-auto-flow: row;
+        align-content: center;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      #spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #2b2438;
+        border-top-color: #f7ce7e;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      #status.failed #spinner { display: none; }
+      #status.failed #message { color: #ff6b6b; max-width: 32rem; }
+    </style>
+  </head>
+  <body>
+    <div id="frame">
+      <!-- Named, because `main.rs` looks for `#game-canvas`. Without a canvas
+           to find, Bevy appends its own at a fixed 1280x720 and the layout
+           above stops applying. -->
+      <canvas id="game-canvas"></canvas>
+    </div>
+
+    <div id="status">
+      <div id="spinner"></div>
+      <div id="message">LOADING…</div>
+    </div>
+
+    <script type="module">
+      const status = document.getElementById('status');
+      const message = document.getElementById('message');
+
+      const failed = (text) => {
+        status.classList.add('failed');
+        message.textContent = text;
+      };
+
+      import('./game.js')
+        .then(({ default: init }) => init())
+        .then(() => status.remove())
+        .catch((error) => {
+          // **Bevy's winit backend throws on a successful start.** It runs the
+          // event loop by unwinding out of `init()` — "Using exceptions for
+          // control flow, don't mind me. This isn't actually an error!" — so
+          // treating every rejection as a failure hides the game behind an
+          // error message it never earned.
+          if (String(error).includes('Using exceptions for control flow')) {
+            status.remove();
+            return;
+          }
+          failed('Failed to start: ' + error);
+          throw error;
+        });
+    </script>
+  </body>
+</html>
