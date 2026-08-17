@@ -99,7 +99,7 @@ Those four are the difference between a harness and a random number generator.
 
 ## Where the agent fits
 
-`beveraige::devtools::agent` is the other half of the same idea, for the cases a
+`bevyraige::devtools::agent` is the other half of the same idea, for the cases a
 scenario cannot reach: does the *game* work, as opposed to the simulation.
 
 The division that has held up:

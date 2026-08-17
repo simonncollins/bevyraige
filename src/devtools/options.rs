@@ -8,7 +8,7 @@
 //! ```rust
 //! # use bevy::prelude::*;
 //! # use serde::Deserialize;
-//! # use beveraige::devtools::options::DevOptionsPlugin;
+//! # use bevyraige::devtools::options::DevOptionsPlugin;
 //! #[derive(Resource, Deserialize, Default, Clone, Debug)]
 //! #[serde(default, deny_unknown_fields)]
 //! struct MyOptions {

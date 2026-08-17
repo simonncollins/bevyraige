@@ -58,7 +58,7 @@ fn bad(message: impl Into<String>) -> BrpError {
 /// ```no_run
 /// # use bevy::prelude::*;
 /// # use bevy::remote::RemotePlugin;
-/// # use beveraige::devtools::agent::control::with_agent_methods;
+/// # use bevyraige::devtools::agent::control::with_agent_methods;
 /// # let mut app = App::new();
 /// app.add_plugins(with_agent_methods(RemotePlugin::default()));
 /// ```

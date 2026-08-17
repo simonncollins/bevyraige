@@ -66,7 +66,7 @@
 //! ```no_run
 //! # use bevy::prelude::*;
 //! # use bevy::remote::{RemotePlugin, BrpResult};
-//! # use beveraige::devtools::agent;
+//! # use bevyraige::devtools::agent;
 //! # use serde_json::Value;
 //! # let mut app = App::new();
 //! # fn place_trigger(_: In<Option<Value>>) -> BrpResult { unimplemented!() }

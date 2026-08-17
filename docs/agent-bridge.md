@@ -1,6 +1,6 @@
 # Writing the game-specific bridge
 
-`beveraige::devtools::agent` gives you generic verbs — press a named button, move
+`bevyraige::devtools::agent` gives you generic verbs — press a named button, move
 the pointer, click, type, step the simulation, screenshot. Those are enough to
 *operate* a game and not enough to *understand* one. The bridge is the layer that
 speaks your game's vocabulary, and it is the part you write.

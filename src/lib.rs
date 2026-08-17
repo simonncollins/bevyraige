@@ -24,7 +24,7 @@
 //!
 //! ```no_run
 //! use bevy::prelude::*;
-//! use beveraige::devtools::DevToolsPlugin;
+//! use bevyraige::devtools::DevToolsPlugin;
 //! use std::str::FromStr;
 //! #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 //! enum AppState {

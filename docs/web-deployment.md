@@ -211,7 +211,7 @@ hunting for a malformed document that never existed.
 
 **The clock panics.** `Instant::now()` and `SystemTime::now()` both panic on
 `wasm32-unknown-unknown`, and nothing at the call site suggests they might. Use
-`beveraige::platform` — `Instant` (Bevy's, which is `web_time` on the web),
+`bevyraige::platform` — `Instant` (Bevy's, which is `web_time` on the web),
 `now_unix`, `now_unix_millis`.
 
 Search your codebase for `SystemTime::now` before your first web build. Ours had
